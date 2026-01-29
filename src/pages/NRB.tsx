@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { TranslationKey } from '@/lib/translations';
 import { Globe, Video, CreditCard, Headphones, Phone, MessageCircle, Mail, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -76,7 +77,7 @@ export default function NRB() {
                       <service.icon className="w-8 h-8 text-accent" />
                     </div>
                     <h3 className="font-display text-xl font-bold text-foreground mb-3">
-                      {t(service.titleKey as any)}
+                      {t(service.titleKey as TranslationKey)}
                     </h3>
                     <p className="text-muted-foreground">{service.description}</p>
                   </CardContent>

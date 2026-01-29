@@ -1,15 +1,22 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { MapPin, Filter, X, ChevronDown } from 'lucide-react';
+import { TranslationKey } from '@/lib/translations';
+import { MapPin, Filter, X, ChevronDown, Hand, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 type PlotStatus = 'available' | 'booked' | 'sold';
+type PlotType = 'commercial' | 'residential' | 'special';
 
+// Plot Interface
 interface Plot {
   id: string;
+  block: string;
+  type: PlotType;
   status: PlotStatus;
   size: number;
   roadWidth: number;
@@ -17,322 +24,290 @@ interface Plot {
   price: number;
 }
 
-// Plot data
-const plotsData: Plot[] = [
-  { id: 'A1', status: 'available', size: 3, roadWidth: 20, corner: true, price: 4500000 },
-  { id: 'A2', status: 'available', size: 3, roadWidth: 20, corner: false, price: 4000000 },
-  { id: 'A3', status: 'booked', size: 5, roadWidth: 25, corner: false, price: 6500000 },
-  { id: 'A4', status: 'sold', size: 3, roadWidth: 20, corner: false, price: 4000000 },
-  { id: 'A5', status: 'available', size: 5, roadWidth: 30, corner: true, price: 7500000 },
-  { id: 'B1', status: 'available', size: 3, roadWidth: 20, corner: false, price: 3800000 },
-  { id: 'B2', status: 'booked', size: 5, roadWidth: 25, corner: false, price: 6200000 },
-  { id: 'B3', status: 'available', size: 7, roadWidth: 30, corner: true, price: 9500000 },
-  { id: 'B4', status: 'sold', size: 3, roadWidth: 20, corner: false, price: 3900000 },
-  { id: 'B5', status: 'available', size: 5, roadWidth: 25, corner: false, price: 6000000 },
-  { id: 'C1', status: 'sold', size: 3, roadWidth: 20, corner: true, price: 4200000 },
-  { id: 'C2', status: 'available', size: 5, roadWidth: 25, corner: false, price: 6100000 },
-  { id: 'C3', status: 'booked', size: 3, roadWidth: 20, corner: false, price: 3700000 },
-  { id: 'C4', status: 'available', size: 7, roadWidth: 30, corner: false, price: 8800000 },
-  { id: 'C5', status: 'available', size: 5, roadWidth: 25, corner: true, price: 7000000 },
-];
-// Filter Panel Component
+// Generate Data (Same logic as before, just kept for brevity in plan)
+const generatePlots = (): Plot[] => {
+  const plots: Plot[] = [];
 
-// Filter Panel Component
-function FilterPanel({
-  filters,
-  setFilters,
-  onClose,
-}: {
-  filters: any;
-  setFilters: (f: any) => void;
-  onClose: () => void;
-}) {
+  // BLOCK A
+  for (let i = 1; i <= 100; i++) {
+    let type: PlotType = 'residential';
+    let size = 2;
+    let roadWidth = 30;
+    if (i > 80) { type = 'commercial'; size = 1; }
+    else if (i <= 20) { size = 4; }
+    else { size = i % 3 === 0 ? 4 : 2; }
+
+    plots.push({
+      id: `A${i}`, block: 'A', type,
+      status: i % 6 === 0 ? 'booked' : i % 9 === 0 ? 'sold' : 'available',
+      size, roadWidth, corner: i % 10 === 1,
+      price: type === 'commercial' ? 50000000 : size * 1200000
+    });
+  }
+
+  // BLOCK B
+  for (let i = 1; i <= 80; i++) {
+    if (i >= 30 && i <= 35) continue;
+    plots.push({
+      id: `B${i}`, block: 'B', type: 'residential',
+      status: i % 5 === 0 ? 'booked' : i % 8 === 0 ? 'sold' : 'available',
+      size: i % 2 === 0 ? 4 : 2, roadWidth: 25, corner: i % 8 === 1,
+      price: 2 * 1200000
+    });
+  }
+
+  // BLOCK C
+  for (let i = 1; i <= 80; i++) {
+    let type: PlotType = 'residential';
+    let size = 2;
+    if (i <= 15) { type = 'special'; size = 5; }
+    plots.push({
+      id: `C${i}`, block: 'C', type,
+      status: i % 4 === 0 ? 'booked' : i % 10 === 0 ? 'sold' : 'available',
+      size, roadWidth: 25, corner: i % 6 === 1,
+      price: type === 'special' ? 8000000 : size * 1200000
+    });
+  }
+  return plots;
+};
+
+const plotsData = generatePlots();
+
+interface FilterState {
+  status: string;
+  minSize: number;
+  maxSize: number;
+  roadWidth: number | 'all';
+  corner: 'all' | 'yes' | 'no';
+  minPrice: number;
+  maxPrice: number;
+}
+
+// Mobile-friendly Filter Panel (Bottom Sheet style on mobile, Sidebar on desktop)
+function FilterPanel({ filters, setFilters, onClose }: { filters: FilterState; setFilters: (f: FilterState) => void; onClose: () => void }) {
   const { t } = useLanguage();
-
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 300 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 300 }}
-      className="fixed right-0 top-0 bottom-0 w-80 bg-card shadow-2xl z-50 overflow-y-auto"
-    >
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="font-display text-xl font-bold">{t('projects.filterTitle')}</h3>
-          <button onClick={onClose} className="p-2 hover:bg-secondary rounded-lg">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex justify-end">
+      <motion.div
+        initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+        className="w-full sm:w-80 bg-card border-l h-full shadow-2xl overflow-y-auto"
+      >
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-xl font-bold text-foreground">{t('projects.filterTitle')}</h3>
+            <Button variant="ghost" size="icon" onClick={onClose}><X className="w-5 h-5" /></Button>
+          </div>
 
-        <div className="space-y-6">
-          {/* Status Filter */}
+          {/* Status */}
           <div>
             <label className="text-sm font-medium mb-2 block">Status</label>
-            <div className="flex gap-2 flex-wrap">
-              {['all', 'available', 'booked', 'sold'].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilters({ ...filters, status })}
-                  className={`px-3 py-1 rounded-full text-sm capitalize ${
-                    filters.status === status
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground'
-                  }`}
+            <div className="flex flex-wrap gap-2">
+              {['all', 'available', 'booked', 'sold'].map(s => (
+                <Badge
+                  key={s}
+                  variant={filters.status === s ? 'default' : 'outline'}
+                  className="cursor-pointer capitalize"
+                  onClick={() => setFilters({ ...filters, status: s })}
                 >
-                  {status === 'all' ? 'All' : t(`projects.${status}` as any)}
-                </button>
+                  {s}
+                </Badge>
               ))}
             </div>
           </div>
 
-          {/* Size Filter */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">
-              Plot Size: {filters.minSize} - {filters.maxSize} Katha
-            </label>
-            <Slider
-              value={[filters.minSize, filters.maxSize]}
-              min={2}
-              max={10}
-              step={1}
-              onValueChange={([min, max]) => setFilters({ ...filters, minSize: min, maxSize: max })}
-            />
-          </div>
-
-          {/* Road Width Filter */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Road Width</label>
-            <div className="flex gap-2 flex-wrap">
-              {['all', 20, 25, 30].map((width) => (
-                <button
-                  key={width}
-                  onClick={() => setFilters({ ...filters, roadWidth: width })}
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    filters.roadWidth === width
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground'
-                  }`}
-                >
-                  {width === 'all' ? 'All' : `${width}ft`}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Corner Plot */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Corner Plot</label>
-            <div className="flex gap-2">
-              {['all', 'yes', 'no'].map((corner) => (
-                <button
-                  key={corner}
-                  onClick={() => setFilters({ ...filters, corner })}
-                  className={`px-3 py-1 rounded-full text-sm capitalize ${
-                    filters.corner === corner
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground'
-                  }`}
-                >
-                  {corner === 'all' ? 'All' : corner === 'yes' ? 'Corner' : 'Regular'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Price Range */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">
-              Price: ৳{(filters.minPrice / 100000).toFixed(0)}L - ৳{(filters.maxPrice / 100000).toFixed(0)}L
-            </label>
-            <Slider
-              value={[filters.minPrice, filters.maxPrice]}
-              min={3000000}
-              max={10000000}
-              step={500000}
-              onValueChange={([min, max]) => setFilters({ ...filters, minPrice: min, maxPrice: max })}
-            />
-          </div>
-
-          {/* Clear Filters */}
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() =>
-              setFilters({
-                status: 'all',
-                minSize: 2,
-                maxSize: 10,
-                roadWidth: 'all',
-                corner: 'all',
-                minPrice: 3000000,
-                maxPrice: 10000000,
-              })
-            }
-          >
-            Clear Filters
+          <Button onClick={() => setFilters({ status: 'all', minSize: 2, maxSize: 10, roadWidth: 'all', corner: 'all', minPrice: 0, maxPrice: 100000000 })}>
+            Reset Filters
           </Button>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
-// Plot Map Component
+// The Map Component itself
 function PlotMap({ plots, onPlotClick }: { plots: Plot[]; onPlotClick: (plot: Plot) => void }) {
-  const { t } = useLanguage();
+  const plotsA = plots.filter(p => p.block === 'A');
+  const plotsB = plots.filter(p => p.block === 'B');
+  const plotsC = plots.filter(p => p.block === 'C');
 
-  const getStatusColor = (status: PlotStatus) => {
-    switch (status) {
-      case 'available':
-        return 'bg-plot-available hover:bg-plot-available/80';
-      case 'booked':
-        return 'bg-plot-booked hover:bg-plot-booked/80';
-      case 'sold':
-        return 'bg-plot-sold hover:bg-plot-sold/80';
-    }
+  const getPlotStyle = (plot: Plot) => {
+    let bg = '#fde047';
+    if (plot.size === 1) bg = '#3b82f6';
+    if (plot.size === 4) bg = '#4ade80';
+    if (plot.size === 5) bg = '#f9a8d4';
+    return { backgroundColor: bg };
   };
 
-  return (
-    <div className="bg-card rounded-2xl p-6 shadow-lg">
-      {/* Legend */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-plot-available" />
-          <span className="text-sm">{t('projects.available')}</span>
+  const PlotButton = ({ plot }: { plot: Plot }) => (
+    <motion.button
+      whileHover={{ scale: 1.1, zIndex: 10 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => onPlotClick(plot)}
+      className="relative w-full aspect-[1.3/1] border-[0.5px] border-slate-600/30 text-[8px] sm:text-[10px] font-bold text-slate-800 flex items-center justify-center shadow-sm overflow-hidden"
+      style={getPlotStyle(plot)}
+    >
+      <span className="z-10 bg-white/40 px-0.5 rounded backdrop-blur-[0px]">{plot.id.replace(plot.block, '')}</span>
+      {plot.status === 'booked' && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagonal-stripes.png')] opacity-30 z-0 bg-slate-500" />}
+      {plot.status === 'sold' && (
+        <div className="absolute inset-0 bg-red-600/40 z-20 flex items-center justify-center">
+          <X className="w-full h-full text-white p-1" />
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-plot-booked" />
-          <span className="text-sm">{t('projects.booked')}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-plot-sold" />
-          <span className="text-sm">{t('projects.sold')}</span>
-        </div>
-      </div>
+      )}
+    </motion.button>
+  );
 
-      {/* Map Grid */}
-      <div className="grid grid-cols-5 gap-2">
-        {plots.map((plot) => (
-          <motion.button
-            key={plot.id}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onPlotClick(plot)}
-            className={`aspect-square rounded-lg text-white font-semibold text-sm flex items-center justify-center cursor-pointer transition-colors ${getStatusColor(plot.status)}`}
-          >
-            {plot.id}
-          </motion.button>
-        ))}
+  return (
+    <div className="relative w-full border rounded-xl overflow-hidden bg-slate-50 shadow-inner group">
+      {/* ScrollArea only active on Desktop for the wide map feel */}
+      <div className="w-full md:overflow-x-auto md:h-auto">
+        <div className="w-full md:min-w-[1000px] p-4 md:p-8 md:pb-16 relative bg-[#f8f9fa] select-none">
+
+          {/* Visual Background Elements - Hidden on Mobile to avoid layout breaking */}
+          <div className="hidden md:block absolute top-0 left-20 right-20 h-40 bg-blue-200/50 rounded-b-[50%] border-b-4 border-blue-300 pointer-events-none" />
+          <div className="hidden md:block absolute top-8 left-8 w-24 h-24 text-slate-800 pointer-events-none">
+            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md"><path d="M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z" fill="#fff" stroke="currentColor" strokeWidth="2" /><path d="M50 0 L50 50 L0 50 Z" fill="currentColor" /><text x="44" y="12" fontSize="14" fontWeight="bold">N</text></svg>
+          </div>
+
+          {/* Blocks Render - Stack on Mobile, Row on Desktop */}
+          <div className="flex flex-col md:flex-row gap-8 md:gap-4 items-center md:items-start relative z-10 pt-4 md:pt-20">
+
+            {/* BLOCK A */}
+            <div className="flex-1 flex flex-col gap-1 w-full max-w-sm md:w-72">
+              <div className="text-center bg-primary text-primary-foreground font-bold py-1 text-sm rounded-t-sm">BLOCK - A</div>
+              <div className="bg-green-100 border-2 border-green-300 h-24 flex items-center justify-center mb-1 rounded-sm relative overflow-hidden">
+                <span className="text-green-800 font-bold uppercase tracking-widest text-lg">Park</span>
+              </div>
+              <div className="grid grid-cols-6 gap-0.5 p-1 border border-slate-300 bg-slate-100">
+                {plotsA.slice(0, 48).map(p => <PlotButton key={p.id} plot={p} />)}
+              </div>
+              <div className="h-8 bg-[#e5e5e0] flex items-center justify-center border-y border-slate-300 my-1"><span className="text-[10px] font-bold text-slate-500 uppercase">Road</span></div>
+              <div className="grid grid-cols-6 gap-0.5 p-1 border border-slate-300 bg-slate-100">
+                {plotsA.slice(48, 80).map(p => <PlotButton key={p.id} plot={p} />)}
+              </div>
+              <div className="grid grid-cols-6 gap-0.5 p-1 border border-blue-200 bg-blue-50 mt-1">
+                {plotsA.slice(80).map(p => <PlotButton key={p.id} plot={p} />)}
+              </div>
+            </div>
+
+            {/* BLOCK B */}
+            <div className="flex-1 flex flex-col gap-1 md:pt-12 w-full max-w-sm md:w-64">
+              <div className="text-center bg-primary text-primary-foreground font-bold py-1 text-sm rounded-t-sm">BLOCK - B</div>
+              <div className="relative">
+                <div className="grid grid-cols-5 gap-0.5 p-1 border border-slate-300 bg-slate-100">
+                  {plotsB.map(p => <PlotButton key={p.id} plot={p} />)}
+                </div>
+              </div>
+            </div>
+
+            {/* BLOCK C */}
+            <div className="flex-1 flex flex-col gap-1 md:pt-8 w-full max-w-sm md:w-64">
+              <div className="text-center bg-primary text-primary-foreground font-bold py-1 text-sm rounded-t-sm">BLOCK - C</div>
+              <div className="bg-pink-100 border-2 border-pink-300 h-24 flex items-center justify-center mb-1 md:rounded-tr-[3rem]">
+                <span className="text-pink-800 font-bold uppercase tracking-widest text-center">Apts</span>
+              </div>
+              <div className="grid grid-cols-5 gap-0.5 p-1 border border-slate-300 bg-slate-100">
+                {plotsC.map(p => <PlotButton key={p.id} plot={p} />)}
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-// Plot Detail Modal
+// Modern Modal
 function PlotDetailModal({ plot, onClose }: { plot: Plot | null; onClose: () => void }) {
   const { t } = useLanguage();
-
   if (!plot) return null;
 
-  const getStatusColor = (status: PlotStatus) => {
-    switch (status) {
-      case 'available':
-        return 'bg-plot-available';
-      case 'booked':
-        return 'bg-plot-booked';
-      case 'sold':
-        return 'bg-plot-sold';
-    }
-  };
+  // Dummy Data Generators
+  const bookingMoney = Math.round(plot.price * 0.1);
+  const installment = Math.round((plot.price - bookingMoney) / 60);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-card rounded-2xl p-6 max-w-md w-full shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="font-display text-2xl font-bold">Plot {plot.id}</h3>
-          <span className={`px-3 py-1 rounded-full text-white text-sm font-semibold ${getStatusColor(plot.status)}`}>
-            {t(`projects.${plot.status}` as any)}
-          </span>
-        </div>
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-background/80 backdrop-blur-sm" onClick={onClose}>
+        <motion.div
+          initial={{ y: '100%', opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '100%', opacity: 0 }}
+          className="bg-card border w-full max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="bg-primary/5 p-6 border-b">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                Plot {plot.id}
+              </h3>
+              <Badge variant={plot.status === 'available' ? 'default' : 'secondary'} className="uppercase">
+                {plot.status}
+              </Badge>
+            </div>
+            <p className="text-muted-foreground text-sm">Block {plot.block} • {plot.type === 'commercial' ? 'Commercial' : 'Residential'} Zone</p>
+          </div>
 
-        <div className="space-y-4">
-          <div className="flex justify-between py-3 border-b">
-            <span className="text-muted-foreground">Plot Size</span>
-            <span className="font-semibold">{plot.size} Katha</span>
-          </div>
-          <div className="flex justify-between py-3 border-b">
-            <span className="text-muted-foreground">Road Width</span>
-            <span className="font-semibold">{plot.roadWidth} ft</span>
-          </div>
-          <div className="flex justify-between py-3 border-b">
-            <span className="text-muted-foreground">Corner Plot</span>
-            <span className="font-semibold">{plot.corner ? 'Yes' : 'No'}</span>
-          </div>
-          <div className="flex justify-between py-3">
-            <span className="text-muted-foreground">Price</span>
-            <span className="font-bold text-xl text-primary">৳{plot.price.toLocaleString()}</span>
-          </div>
-        </div>
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-secondary/20 p-3 rounded-lg">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Plot Size</p>
+                <p className="text-lg font-bold text-foreground">{plot.size === 1 ? 'Commercial' : `${plot.size} Katha`}</p>
+              </div>
+              <div className="bg-secondary/20 p-3 rounded-lg">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Facing Road</p>
+                <p className="text-lg font-bold text-foreground">{plot.roadWidth}' Wide</p>
+              </div>
+              <div className="bg-secondary/20 p-3 rounded-lg">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Plot Price</p>
+                <p className="text-lg font-bold text-primary">৳ {(plot.price / 100000).toFixed(1)} Lakh</p>
+              </div>
+              <div className="bg-secondary/20 p-3 rounded-lg">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Booking Money</p>
+                <p className="text-lg font-bold text-foreground">৳ {(bookingMoney / 100000).toFixed(1)} Lakh</p>
+              </div>
+            </div>
 
-        <div className="mt-6 flex gap-3">
-          {plot.status === 'available' && (
-            <Button className="flex-1">Book Now</Button>
-          )}
-          <Button variant="outline" className="flex-1" onClick={onClose}>
-            Close
-          </Button>
-        </div>
-      </motion.div>
-    </motion.div>
+            <div className="space-y-3 border-t pt-4">
+              <h4 className="font-display font-semibold text-lg">Payment Plan</h4>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Up to 60 Installments</span>
+                <span className="font-bold">~ ৳ {(installment).toLocaleString()}/month</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Or One-time Payment</span>
+                <span className="font-bold text-green-600">10% Discount</span>
+              </div>
+            </div>
+
+            <Button className="w-full text-lg py-6 shadow-lg shadow-primary/20" size="lg" disabled={plot.status !== 'available'}>
+              {plot.status === 'available' ? 'Book This Plot Now' : 'Currently Unavailable'}
+            </Button>
+
+            <p className="text-center text-xs text-muted-foreground">
+              * Prices are subject to change. Contact us for final quotation.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </AnimatePresence>
   );
 }
 
-// Project Card Component
 function ProjectCard({ project }: { project: any }) {
   return (
-    <Card className="overflow-hidden">
-      <div className="relative h-64">
-        <img src={project.image} alt={project.name} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          <h3 className="font-display text-2xl font-bold mb-1">{project.name}</h3>
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="w-4 h-4" />
-            <span>{project.location}</span>
-          </div>
+    <Card className="overflow-hidden mb-8">
+      <div className="h-48 bg-gray-200 relative">
+        <img src={project.image} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/40 flex items-end p-6">
+          <h2 className="text-3xl font-bold text-white">{project.name}</h2>
         </div>
       </div>
       <CardContent className="p-6">
-        <p className="text-muted-foreground mb-4">{project.description}</p>
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-primary">{project.totalPlots}</p>
-            <p className="text-xs text-muted-foreground">Total Plots</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-plot-available">{project.available}</p>
-            <p className="text-xs text-muted-foreground">Available</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-accent">{project.priceStart}</p>
-            <p className="text-xs text-muted-foreground">Starting</p>
-          </div>
-        </div>
+        <p>{project.description}</p>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 export default function Projects() {
@@ -340,35 +315,29 @@ export default function Projects() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPlot, setSelectedPlot] = useState<Plot | null>(null);
   const [selectedProject, setSelectedProject] = useState<'nimtola' | 'purbachal'>('nimtola');
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterState>({
     status: 'all',
     minSize: 2,
     maxSize: 10,
-    roadWidth: 'all' as 'all' | number,
-    corner: 'all' as 'all' | 'yes' | 'no',
-    minPrice: 3000000,
-    maxPrice: 10000000,
+    roadWidth: 'all',
+    corner: 'all',
+    minPrice: 0,
+    maxPrice: 100000000
   });
 
   const projects = {
     nimtola: {
       name: t('projects.nimtola'),
       location: 'Savar, Dhaka',
-      description: 'A modern smart city project with all civic amenities, wide roads, and beautiful landscaping.',
       image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
-      totalPlots: '250+',
-      available: '120',
-      priceStart: '৳35L',
+      description: 'A modern smart city project with all civic amenities.'
     },
     purbachal: {
       name: t('projects.purbachal'),
       location: 'Purbachal, Dhaka',
-      description: 'Premium lake-view plots in the heart of Purbachal New Town with excellent connectivity.',
       image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80',
-      totalPlots: '180+',
-      available: '85',
-      priceStart: '৳45L',
-    },
+      description: 'Premium lake-view plots with excellent connectivity.'
+    }
   };
 
   const filteredPlots = plotsData.filter((plot) => {
@@ -382,100 +351,33 @@ export default function Projects() {
   });
 
   return (
-    <div className="min-h-screen pt-20">
-      {/* Header */}
-      <section className="py-16 bg-secondary/30">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h1 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              {t('projects.title')}
-            </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              {t('projects.subtitle')}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Project Tabs */}
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen pt-20 bg-background">
+      <div className="container mx-auto px-4 pb-20">
         <div className="flex flex-wrap gap-4 justify-center mb-8">
-          {(['nimtola', 'purbachal'] as const).map((project) => (
-            <button
-              key={project}
-              onClick={() => setSelectedProject(project)}
-              className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
-                selectedProject === project
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-              }`}
+          {(['nimtola', 'purbachal'] as const).map((p) => (
+            <Button
+              key={p}
+              variant={selectedProject === p ? 'default' : 'outline'}
+              onClick={() => setSelectedProject(p)}
             >
-              {projects[project].name}
-            </button>
+              {projects[p].name}
+            </Button>
           ))}
         </div>
 
-        {/* Project Info */}
-        <motion.div
-          key={selectedProject}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <ProjectCard project={projects[selectedProject]} />
-        </motion.div>
+        <ProjectCard project={projects[selectedProject]} />
 
-        {/* Filter Toggle */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="font-display text-2xl font-bold">Plot Availability</h2>
-          <Button variant="outline" onClick={() => setShowFilters(true)} className="gap-2">
-            <Filter className="w-4 h-4" />
-            Filter
-            <ChevronDown className="w-4 h-4" />
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-display text-2xl font-bold text-foreground">Site Plan</h2>
+          <Button variant="outline" size="sm" onClick={() => setShowFilters(true)} className="gap-2">
+            <Filter className="w-4 h-4" /> Filter
           </Button>
         </div>
 
-        {/* Plot Map */}
         <PlotMap plots={filteredPlots} onPlotClick={setSelectedPlot} />
-
-        {/* Gallery Section */}
-        <div className="mt-16">
-          <h2 className="font-display text-2xl font-bold mb-6">Project Gallery</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80',
-              'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=400&q=80',
-              'https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=400&q=80',
-              'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80',
-            ].map((image, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="aspect-square rounded-xl overflow-hidden"
-              >
-                <img src={image} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
-              </motion.div>
-            ))}
-          </div>
-        </div>
       </div>
 
-      {/* Filter Panel */}
-      {showFilters && (
-        <>
-          <div className="fixed inset-0 bg-foreground/30 z-40" onClick={() => setShowFilters(false)} />
-          <FilterPanel filters={filters} setFilters={setFilters} onClose={() => setShowFilters(false)} />
-        </>
-      )}
-
-      {/* Plot Detail Modal */}
+      {showFilters && <FilterPanel filters={filters} setFilters={setFilters} onClose={() => setShowFilters(false)} />}
       {selectedPlot && <PlotDetailModal plot={selectedPlot} onClose={() => setSelectedPlot(null)} />}
     </div>
   );

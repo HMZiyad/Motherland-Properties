@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { TranslationKey } from '@/lib/translations';
 import { GraduationCap, Church, Trees, Heart, ShoppingBag, Bus, MapPin } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -83,7 +84,7 @@ export default function Amenities() {
                       <amenity.icon className="w-7 h-7 text-primary" />
                     </div>
                     <h3 className="font-display text-xl font-bold text-foreground mb-2">
-                      {t(`amenities.${amenity.key}` as any)}
+                      {t(`amenities.${amenity.key}` as TranslationKey)}
                     </h3>
                     <div className="flex items-center gap-2 text-sm text-accent mb-4">
                       <MapPin className="w-4 h-4" />
