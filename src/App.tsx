@@ -13,6 +13,9 @@ import Trust from "./pages/Trust";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NRB from "./pages/NRB";
+import Career from "./pages/Career";
+import NewsEvents from "./pages/NewsEvents";
+import Gallery from "./pages/Gallery";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -32,8 +35,11 @@ const App = () => (
               <Route path="/projects" element={<Projects />} />
               <Route path="/emi-calculator" element={<EMICalculator />} />
               <Route path="/amenities" element={<Amenities />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/news" element={<NewsEvents />} />
               <Route path="/trust" element={<Trust />} />
               <Route path="/about" element={<About />} />
+              <Route path="/career" element={<Career />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/nrb" element={<NRB />} />
             </Route>

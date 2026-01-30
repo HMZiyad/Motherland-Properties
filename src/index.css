@@ -1,107 +1,105 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Motherland Properties Design System
-   Color Palette: Emerald Green, Gold, White
-   All colors in HSL format
+/* 
+   Blackbox Architecture Design System 
+   Theme: Monochrome (Black, White, Dark Gray)
+   Typography: Geometric Sans (Manrope)
 */
 
 @layer base {
   :root {
-    /* Emerald Green Primary */
-    --primary: 152 69% 31%;
+    /* Primary - Absolute Black */
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
-    
-    /* Gold Accent */
-    --accent: 43 74% 49%;
-    --accent-foreground: 0 0% 10%;
-    
-    /* Clean Backgrounds */
+
+    /* Accent - Dark Gray/Silver */
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Backgrounds - Stark White */
     --background: 0 0% 100%;
-    --foreground: 210 11% 15%;
-    
-    /* Cards & Surfaces */
+    --foreground: 0 0% 0%;
+
+    /* Cards & Surfaces - White or Very Light Gray */
     --card: 0 0% 100%;
-    --card-foreground: 210 11% 15%;
-    
+    --card-foreground: 0 0% 0%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 210 11% 15%;
-    
-    /* Secondary - Light emerald tint */
-    --secondary: 152 30% 96%;
-    --secondary-foreground: 152 69% 25%;
-    
-    /* Muted - Soft gray with green undertone */
-    --muted: 150 10% 95%;
-    --muted-foreground: 150 5% 45%;
-    
+    --popover-foreground: 0 0% 0%;
+
+    /* Secondary - Light Gray */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
+
+    /* Muted - Middle Gray */
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
+
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    
-    /* Borders & Inputs */
-    --border: 150 20% 90%;
-    --input: 150 20% 90%;
-    --ring: 152 69% 31%;
-    
-    --radius: 0.75rem;
-    
-    /* Plot Status Colors */
-    --plot-available: 142 76% 36%;
-    --plot-booked: 45 93% 47%;
-    --plot-sold: 0 84% 60%;
-    
+
+    /* Borders */
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
+
+    --radius: 0rem;
+    /* Sharp edges */
+
     /* Sidebar */
-    --sidebar-background: 152 30% 98%;
-    --sidebar-foreground: 152 20% 25%;
-    --sidebar-primary: 152 69% 31%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 43 74% 49%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 150 20% 90%;
-    --sidebar-ring: 152 69% 31%;
+    --sidebar-accent: 0 0% 90%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 0% 0%;
   }
 
   .dark {
-    --primary: 152 60% 45%;
+    /* Dark Mode - Inverted "Blackbox" */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
-    
-    --accent: 43 74% 55%;
-    --accent-foreground: 0 0% 10%;
-    
-    --background: 210 11% 10%;
-    --foreground: 0 0% 95%;
-    
-    --card: 210 11% 12%;
-    --card-foreground: 0 0% 95%;
-    
-    --popover: 210 11% 12%;
-    --popover-foreground: 0 0% 95%;
-    
-    --secondary: 152 30% 15%;
-    --secondary-foreground: 152 40% 80%;
-    
-    --muted: 210 11% 20%;
-    --muted-foreground: 210 10% 60%;
-    
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 210 11% 20%;
-    --input: 210 11% 20%;
-    --ring: 152 60% 45%;
-    
-    --sidebar-background: 210 11% 10%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
+
+    --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 152 60% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 43 74% 55%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 210 11% 20%;
-    --sidebar-ring: 152 60% 45%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 0 0% 100%;
   }
 }
 
@@ -112,44 +110,42 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+    font-family: 'Manrope', 'Inter', sans-serif;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', 'Noto Sans Bengali', serif;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Manrope', sans-serif;
+    letter-spacing: -0.02em;
+    /* Tighter headings */
+    font-weight: 700;
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: 'Playfair Display', 'Noto Sans Bengali', serif;
+    font-family: 'Manrope', sans-serif;
   }
-  
+
   .font-body {
-    font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+    font-family: 'Manrope', sans-serif;
   }
-  
-  .font-bengali {
-    font-family: 'Noto Sans Bengali', sans-serif;
-  }
-  
+
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-500;
   }
-  
-  .bg-gradient-primary {
-    @apply bg-gradient-to-r from-primary to-primary/80;
+
+  /* Blackbox specific utilities */
+  .tracking-ultra {
+    letter-spacing: 0.25em;
+    /* For that wide "BLACKBOX" look */
   }
-  
-  .bg-gradient-accent {
-    @apply bg-gradient-to-r from-accent to-accent/80;
-  }
-  
-  .shadow-elegant {
-    box-shadow: 0 10px 40px -10px hsl(var(--primary) / 0.2);
-  }
-  
-  .shadow-gold {
-    box-shadow: 0 10px 40px -10px hsl(var(--accent) / 0.3);
+
+  .glass-dark {
+    @apply bg-black/80 backdrop-blur-md border-b border-white/10;
   }
 }

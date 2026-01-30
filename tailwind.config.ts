@@ -114,6 +114,6 @@ export default {
       },
     },
   },
-// @ts-expect-error - tailwindcss-animate does not have types
+  // @ts-expect-error - tailwindcss-animate does not have types
   plugins: [import("tailwindcss-animate")],
 } satisfies Config;

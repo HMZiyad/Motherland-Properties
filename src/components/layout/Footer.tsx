@@ -23,34 +23,32 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-foreground text-background">
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="bg-white text-black pt-24 pb-12 border-t border-black/10">
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
           {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-2xl">M</span>
-              </div>
-              <div>
-                <h3 className="font-display text-xl font-bold">Motherland</h3>
-                <p className="text-sm text-background/70">Properties Ltd.</p>
-              </div>
-            </div>
-            <p className="text-background/80 text-sm leading-relaxed">
+          <div className="space-y-8">
+            <Link to="/" className="block">
+              <img
+                src="/mlp2.png"
+                alt="Motherland Properties"
+                className="h-16 w-auto object-contain brightness-0"
+              />
+            </Link>
+            <p className="text-black/60 text-xs leading-relaxed max-w-sm uppercase tracking-wide">
               Building dreams and creating communities since 2010. Your trusted partner for premium residential plots in Bangladesh.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-4">Quick Links</h4>
-            <ul className="space-y-2">
+            <h4 className="font-bold text-sm mb-8 uppercase tracking-[0.2em]">Quick Links</h4>
+            <ul className="space-y-4">
               {quickLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-background/80 hover:text-accent transition-colors text-sm"
+                    className="text-black/60 hover:text-black transition-colors text-xs uppercase tracking-wider block"
                   >
                     {link.label}
                   </Link>
@@ -61,24 +59,24 @@ export function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-4">{t('nav.contact')}</h4>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                <span className="text-background/80 text-sm">
+            <h4 className="font-bold text-sm mb-8 uppercase tracking-[0.2em]">{t('nav.contact')}</h4>
+            <ul className="space-y-6">
+              <li className="flex items-start gap-4">
+                <MapPin className="w-4 h-4 text-black/40 shrink-0 mt-0.5" />
+                <span className="text-black/60 text-xs uppercase tracking-wide">
                   House #12, Road #5, Dhanmondi<br />
                   Dhaka-1205, Bangladesh
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-accent shrink-0" />
-                <a href="tel:+8801712345678" className="text-background/80 text-sm hover:text-accent transition-colors">
+              <li className="flex items-center gap-4">
+                <Phone className="w-4 h-4 text-black/40 shrink-0" />
+                <a href="tel:+8801712345678" className="text-black/60 text-xs hover:text-black transition-colors uppercase tracking-wide">
                   +880 1712-345678
                 </a>
               </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-accent shrink-0" />
-                <a href="mailto:info@motherlandbd.com" className="text-background/80 text-sm hover:text-accent transition-colors">
+              <li className="flex items-center gap-4">
+                <Mail className="w-4 h-4 text-black/40 shrink-0" />
+                <a href="mailto:info@motherlandbd.com" className="text-black/60 text-xs hover:text-black transition-colors uppercase tracking-wide">
                   info@motherlandbd.com
                 </a>
               </li>
@@ -87,22 +85,22 @@ export function Footer() {
 
           {/* Social & Newsletter */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-4">{t('footer.followUs')}</h4>
-            <div className="flex gap-3 mb-6">
+            <h4 className="font-bold text-sm mb-8 uppercase tracking-[0.2em]">{t('footer.followUs')}</h4>
+            <div className="flex gap-4 mb-8">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="w-10 h-10 border border-black/20 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300"
                   aria-label={social.label}
                 >
-                  <social.icon className="w-5 h-5" />
+                  <social.icon className="w-4 h-4" />
                 </a>
               ))}
             </div>
-            <div className="p-4 bg-background/10 rounded-lg">
-              <p className="text-sm font-medium mb-2">NRB Hotline</p>
-              <a href="tel:+8801712345679" className="text-accent font-semibold text-lg hover:underline">
+            <div className="p-6 border border-black/10 bg-black/5 backdrop-blur-sm">
+              <p className="text-xs font-bold text-black/40 mb-2 uppercase tracking-widest">NRB Hotline</p>
+              <a href="tel:+8801712345679" className="text-black font-light text-xl hover:text-black/60 transition-colors">
                 +880 1712-345679
               </a>
             </div>
@@ -110,14 +108,14 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-background/20">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-background/60 text-sm">
+        <div className="pt-8 border-t border-black/10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-black/40 text-[10px] uppercase tracking-widest">
               © {new Date().getFullYear()} Motherland Properties Ltd. {t('footer.rights')}
             </p>
-            <div className="flex items-center gap-6 text-sm text-background/60">
-              <Link to="/privacy" className="hover:text-accent transition-colors">Privacy Policy</Link>
-              <Link to="/terms" className="hover:text-accent transition-colors">Terms of Service</Link>
+            <div className="flex items-center gap-8 text-[10px] text-black/40 uppercase tracking-widest">
+              <Link to="/privacy" className="hover:text-black transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-black transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>
