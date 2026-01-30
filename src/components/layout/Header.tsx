@@ -11,6 +11,7 @@ export function Header() {
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const { language, toggleLanguage, t } = useLanguage();
   const location = useLocation();
+  const isHome = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -53,8 +54,8 @@ export function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isScrolled
-          ? 'bg-white/90 backdrop-blur-md border-b border-black/10 h-20 shadow-sm'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isScrolled || !isHome
+          ? 'bg-background/90 backdrop-blur-md border-b border-border h-20 shadow-sm'
           : 'bg-transparent h-28'
           }`}
       >
@@ -67,7 +68,7 @@ export function Header() {
                 <img
                   src="/mlp2.png"
                   alt="Motherland Properties"
-                  className="h-[4rem] w-auto object-contain drop-shadow-sm transition-all duration-500 brightness-0"
+                  className={`h-[4rem] w-auto object-contain drop-shadow-sm transition-all duration-500 brightness-0 ${isScrolled || !isHome ? 'invert-[.25] sepia-[.95] saturate-[3000%] hue-rotate-[335deg]' : 'invert'}`}
                 />
               </div>
             </Link>
@@ -85,22 +86,24 @@ export function Header() {
                     <Link
                       to={item.path}
                       className={`text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 relative py-2 ${location.pathname === item.path
-                        ? 'text-black opacity-100 font-extrabold'
-                        : 'text-black/60 hover:text-black hover:opacity-100'
-                        } text-black`}
+                        ? (isScrolled || !isHome ? 'text-primary opacity-100 font-extrabold' : 'text-white opacity-100 font-extrabold')
+                        : (isScrolled || !isHome ? 'text-muted-foreground hover:text-primary hover:opacity-100' : 'text-white/80 hover:text-white hover:opacity-100')
+                        } ${isScrolled || !isHome ? 'text-foreground' : 'text-white'}`}
                     >
                       {item.label}
                       {location.pathname === item.path && (
                         <motion.div
                           layoutId="activeNav"
-                          className="absolute -bottom-1 left-0 right-0 h-[1px] bg-black"
+                          className={`absolute -bottom-1 left-0 right-0 h-[1px] ${isScrolled || !isHome ? 'bg-primary' : 'bg-white'}`}
                         />
                       )}
                     </Link>
                   ) : (
                     <button
-                      className={`flex items-center gap-1 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 py-2 ${hoveredNav === item.label ? 'text-black opacity-100' : 'text-black/60 hover:text-black hover:opacity-100'
-                        } text-black`}
+                      className={`flex items-center gap-1 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 py-2 ${hoveredNav === item.label
+                        ? (isScrolled || !isHome ? 'text-primary opacity-100' : 'text-white opacity-100')
+                        : (isScrolled || !isHome ? 'text-muted-foreground hover:text-primary hover:opacity-100' : 'text-white/80 hover:text-white hover:opacity-100')
+                        } ${isScrolled || !isHome ? 'text-foreground' : 'text-white'}`}
                     >
                       {item.label}
                       <ChevronDown
@@ -120,14 +123,14 @@ export function Header() {
                         transition={{ duration: 0.2 }}
                         className="absolute top-full left-1/2 -translate-x-1/2 pt-8 w-64"
                       >
-                        <div className="bg-black border border-white/10 p-2 shadow-2xl">
+                        <div className="bg-popover border border-border p-2 shadow-2xl rounded-sm">
                           {item.children?.map((child) => (
                             <Link
                               key={child.path}
                               to={child.path}
-                              className="flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-wider text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200"
+                              className="flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
                             >
-                              <span className="font-medium">{child.label}</span>
+                              <span className="font-medium text-popover-foreground">{child.label}</span>
                             </Link>
                           ))}
                         </div>
@@ -144,7 +147,7 @@ export function Header() {
                 variant="ghost"
                 size="sm"
                 onClick={toggleLanguage}
-                className="hidden md:flex gap-2 text-black/80 hover:text-black hover:bg-black/5 font-medium uppercase tracking-widest text-xs"
+                className={`hidden md:flex gap-2 font-medium uppercase tracking-widest text-xs ${isScrolled || !isHome ? 'text-muted-foreground hover:text-primary hover:bg-secondary' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
               >
                 <Globe className="w-3 h-3" />
                 <span>{language === 'en' ? 'বাংলা' : 'EN'}</span>
@@ -152,7 +155,7 @@ export function Header() {
 
               <Link
                 to="/nrb"
-                className="hidden md:flex items-center gap-2 px-6 py-2 border border-black/20 text-black hover:bg-black hover:text-white transition-all duration-300 text-xs font-bold uppercase tracking-widest"
+                className={`hidden md:flex items-center gap-2 px-6 py-2 border transition-all duration-300 text-xs font-bold uppercase tracking-widest ${isScrolled || !isHome ? 'border-primary/20 text-foreground hover:bg-primary hover:text-primary-foreground' : 'border-white/30 text-white hover:bg-white hover:text-black'}`}
               >
                 {t('nav.nrb')}
               </Link>
@@ -160,7 +163,7 @@ export function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden p-2 text-black/80 hover:text-black transition-colors"
+                className={`lg:hidden p-2 transition-colors ${isScrolled || !isHome ? 'text-muted-foreground hover:text-primary' : 'text-white hover:text-white/80'}`}
               >
                 <Menu className="w-6 h-6" />
               </button>
@@ -176,14 +179,14 @@ export function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] lg:hidden bg-white/95 backdrop-blur-xl"
+            className="fixed inset-0 z-[60] lg:hidden bg-background/95 backdrop-blur-xl"
           >
             <div className="flex flex-col h-full">
-              <div className="p-6 flex justify-between items-center border-b border-white/10">
-                <span className="text-lg font-bold text-white uppercase tracking-widest">Menu</span>
+              <div className="p-6 flex justify-between items-center border-b border-border">
+                <span className="text-lg font-bold text-foreground uppercase tracking-widest">Menu</span>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 text-white/60 hover:text-white transition-colors"
+                  className="p-2 text-muted-foreground hover:text-primary transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -196,21 +199,21 @@ export function Header() {
                       {item.type === 'link' ? (
                         <Link
                           to={item.path}
-                          className="block text-2xl font-light text-white hover:text-white/60 transition-colors uppercase tracking-widest"
+                          className="block text-2xl font-light text-foreground hover:text-primary transition-colors uppercase tracking-widest"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           {item.label}
                         </Link>
                       ) : (
                         <div className="space-y-4">
-                          <div className="text-xs font-bold text-white/40 uppercase tracking-[0.2em]">
+                          <div className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em]">
                             {item.label}
                           </div>
                           {item.children?.map(child => (
                             <Link
                               key={child.path}
                               to={child.path}
-                              className="block text-lg font-light text-white/80 hover:text-white transition-colors uppercase tracking-wider pl-4 border-l border-white/10"
+                              className="block text-lg font-light text-foreground/80 hover:text-primary transition-colors uppercase tracking-wider pl-4 border-l border-border"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
                               {child.label}
@@ -221,10 +224,10 @@ export function Header() {
                     </div>
                   ))}
 
-                  <div className="mt-12 pt-8 border-t border-white/10 space-y-6">
+                  <div className="mt-12 pt-8 border-t border-border space-y-6">
                     <Link
                       to="/nrb"
-                      className="block w-full py-4 text-center border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 text-sm font-bold uppercase tracking-widest"
+                      className="block w-full py-4 text-center border border-border text-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-sm font-bold uppercase tracking-widest"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {t('nav.nrb')}
@@ -233,7 +236,7 @@ export function Header() {
                     <Button
                       variant="ghost"
                       onClick={toggleLanguage}
-                      className="w-full gap-2 text-white/60 hover:text-white hover:bg-transparent uppercase tracking-widest"
+                      className="w-full gap-2 text-muted-foreground hover:text-foreground hover:bg-transparent uppercase tracking-widest"
                     >
                       <Globe className="w-4 h-4" />
                       <span>{language === 'en' ? 'Switch to Bangla' : 'Switch to English'}</span>
