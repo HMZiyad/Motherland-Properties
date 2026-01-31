@@ -31,7 +31,7 @@ export function Footer() {
             <Link to="/" className="block">
               <img
                 src="/mlp2.png"
-                alt="Motherland Properties"
+                alt="Motherland Green Properties LTD"
                 className="h-16 w-auto object-contain brightness-0"
               />
             </Link>
@@ -111,7 +111,7 @@ export function Footer() {
         <div className="pt-8 border-t border-black/10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <p className="text-black/40 text-[10px] uppercase tracking-widest">
-              © {new Date().getFullYear()} Motherland Properties Ltd. {t('footer.rights')}
+              © {new Date().getFullYear()} Motherland Green Properties LTD. {t('footer.rights')}
             </p>
             <div className="flex items-center gap-8 text-[10px] text-black/40 uppercase tracking-widest">
               <Link to="/privacy" className="hover:text-black transition-colors">Privacy Policy</Link>

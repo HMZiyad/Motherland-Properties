@@ -67,7 +67,7 @@ export function Header() {
                 {/* Note: Ensure mlp2.png works on dark background, otherwise we might need a filter or different asset */}
                 <img
                   src="/mlp2.png"
-                  alt="Motherland Properties"
+                  alt="Motherland Green Properties LTD"
                   className={`h-[4rem] w-auto object-contain drop-shadow-sm transition-all duration-500 brightness-0 ${isScrolled || !isHome ? 'invert-[.25] sepia-[.95] saturate-[3000%] hue-rotate-[335deg]' : 'invert'}`}
                 />
               </div>

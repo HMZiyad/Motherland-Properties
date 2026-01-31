@@ -8,15 +8,43 @@ import { HeroSlideshow } from '@/components/home/HeroSlideshow';
 
 // Hero Section - Semantic Style
 function HeroSection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const quotes = [
     "সবুজ শ্যামল এই বাংলা, আপনার স্বপ্নের ঠিকানা।", // Green verdant Bengal, your dream address.
     "শহরের কোলাহল থেকে দূরে, শান্তির এক আপন নীড়।", // Far from city noise, a peaceful own nest.
     "আগামীর প্রজন্মের জন্য, বাসমযোগ্য এক সুন্দর পৃথিবী।", // For the next generation, a livable beautiful world.
-    "ঐতিহ্য আর আধুনিকতার ছোঁয়ায়, গড়ে তুলুন আপনার ভবিষ্যৎ।" // With touch of tradition and modernity, build your future.
+    "ঐতিহ্য আর আধুনিকতার ছোঁয়ায়, গড়ে তুলুন আপনার ভবিষ্যৎ." // With touch of tradition and modernity, build your future.
   ];
+
+  // Pixar-style Logo Drop Animation
+  const logoVariants = {
+    hidden: { y: -500, opacity: 0, rotate: -10 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      rotate: 0,
+      transition: {
+        type: "spring" as const,
+        damping: 15,
+        stiffness: 120, // Heavy feel
+        delay: 0.5
+      }
+    }
+  };
+
+  const textContainerVariants = {
+    hidden: { scaleY: 1, originY: 1 },
+    visible: {
+      scaleY: [1, 0.6, 1.1, 0.95, 1], // The "Squash & Stretch"
+      transition: {
+        duration: 0.8,
+        delay: 0.8, // Syncs with logo hitting the "ground" (approx 0.5s delay + 0.3s fall)
+        ease: "easeInOut" as const
+      }
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -42,14 +70,28 @@ function HeroSection() {
             </span>
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-bold text-white mb-8 leading-tight uppercase tracking-tighter drop-shadow-lg"
+          {/* Animated Logo & Title Container */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col items-center mb-8 relative"
           >
-            Motherland<br />Properties
-          </motion.h1>
+            {/* Falling Logo */}
+            <motion.div variants={logoVariants} className="mb-8 relative z-20">
+              <img src="/mlp2.png" alt="Company Logo" className="h-24 w-auto brightness-0 invert drop-shadow-xl" />
+            </motion.div>
+
+            {/* Squashing Text */}
+            <motion.div variants={textContainerVariants} className="origin-bottom">
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white leading-tight uppercase tracking-tighter drop-shadow-lg">
+                {language === 'bn' ? (
+                  <>মাদারল্যান্ড গ্রিন<br />প্রপার্টিজ লিঃ</>
+                ) : (
+                  <>Motherland Green<br />Properties LTD</>
+                )}
+              </h1>
+            </motion.div>
+          </motion.div>
 
           <div className="h-24 flex items-center justify-center mb-12">
             <AnimatePresence mode="wait">

@@ -112,7 +112,7 @@ function FilterPanel({ filters, setFilters, onClose }: { filters: FilterState; s
         </div>
 
         <Button
-          className="w-full bg-black text-white hover:bg-gray-800 uppercase tracking-widest text-xs py-6"
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase tracking-widest text-xs py-6"
           onClick={() => {
             setFilters({ status: 'all', minSize: 2, maxSize: 10, roadWidth: 'all', corner: 'all', minPrice: 0, maxPrice: 100000000 });
             onClose();
@@ -137,8 +137,8 @@ function PlotMap({ plots, onPlotClick }: { plots: Plot[]; onPlotClick: (plot: Pl
     // Booked: Gray Hatch
     // Sold: Solid Black
 
-    if (plot.status === 'sold') return { backgroundColor: '#000000', color: '#ffffff' };
-    if (plot.status === 'booked') return { backgroundColor: '#a3a3a3' }; // Gray
+    if (plot.status === 'sold') return { backgroundColor: '#1a4133', color: '#ffffff' }; // Primary Dark Green
+    if (plot.status === 'booked') return { backgroundColor: '#dca818' }; // Gold
     return { backgroundColor: '#ffffff' };
   };
 
@@ -147,7 +147,7 @@ function PlotMap({ plots, onPlotClick }: { plots: Plot[]; onPlotClick: (plot: Pl
       whileHover={{ scale: 1.1, zIndex: 10 }}
       whileTap={{ scale: 0.95 }}
       onClick={() => onPlotClick(plot)}
-      className={`relative w-full aspect-[1.3/1] border-[0.5px] border-black/20 text-[8px] sm:text-[10px] font-bold flex items-center justify-center overflow-hidden transition-colors ${plot.status === 'available' ? 'hover:bg-black hover:text-white' : ''
+      className={`relative w-full aspect-[1.3/1] border-[0.5px] border-primary/20 text-[8px] sm:text-[10px] font-bold flex items-center justify-center overflow-hidden transition-colors ${plot.status === 'available' ? 'hover:bg-primary hovrer:text-white' : ''
         }`}
       style={getPlotStyle(plot)}
     >
@@ -166,11 +166,11 @@ function PlotMap({ plots, onPlotClick }: { plots: Plot[]; onPlotClick: (plot: Pl
 
             {/* BLOCK A */}
             <div className="flex-1 flex flex-col gap-1 w-full max-w-sm">
-              <div className="text-center font-bold py-2 text-xs uppercase tracking-[0.2em] border border-black">BLOCK - A</div>
-              <div className="bg-gray-100 border border-gray-300 h-24 flex items-center justify-center mb-1">
-                <span className="text-gray-400 font-bold uppercase tracking-widest text-lg">Central Park</span>
+              <div className="text-center font-bold py-2 text-xs uppercase tracking-[0.2em] border border-primary text-primary">BLOCK - A</div>
+              <div className="bg-secondary/30 border border-primary/20 h-24 flex items-center justify-center mb-1">
+                <span className="text-primary/60 font-bold uppercase tracking-widest text-lg">Central Park</span>
               </div>
-              <div className="grid grid-cols-6 gap-0.5 p-1 bg-gray-50 border border-gray-200">
+              <div className="grid grid-cols-6 gap-0.5 p-1 bg-secondary/10 border border-primary/10">
                 {plotsA.slice(0, 48).map(p => <PlotButton key={p.id} plot={p} />)}
               </div>
               <div className="h-8 flex items-center justify-center border-y border-gray-200 my-1"><span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Main Road</span></div>
@@ -184,16 +184,16 @@ function PlotMap({ plots, onPlotClick }: { plots: Plot[]; onPlotClick: (plot: Pl
 
             {/* BLOCK B */}
             <div className="flex-1 flex flex-col gap-1 w-full max-w-sm md:pt-12">
-              <div className="text-center font-bold py-2 text-xs uppercase tracking-[0.2em] border border-black">BLOCK - B</div>
-              <div className="grid grid-cols-5 gap-0.5 p-1 bg-gray-50 border border-gray-200">
+              <div className="text-center font-bold py-2 text-xs uppercase tracking-[0.2em] border border-primary text-primary">BLOCK - B</div>
+              <div className="grid grid-cols-5 gap-0.5 p-1 bg-secondary/10 border border-primary/10">
                 {plotsB.map(p => <PlotButton key={p.id} plot={p} />)}
               </div>
             </div>
 
             {/* BLOCK C */}
             <div className="flex-1 flex flex-col gap-1 w-full max-w-sm md:pt-8">
-              <div className="text-center font-bold py-2 text-xs uppercase tracking-[0.2em] border border-black">BLOCK - C</div>
-              <div className="grid grid-cols-5 gap-0.5 p-1 bg-gray-50 border border-gray-200">
+              <div className="text-center font-bold py-2 text-xs uppercase tracking-[0.2em] border border-primary text-primary">BLOCK - C</div>
+              <div className="grid grid-cols-5 gap-0.5 p-1 bg-secondary/10 border border-primary/10">
                 {plotsC.map(p => <PlotButton key={p.id} plot={p} />)}
               </div>
             </div>
@@ -223,10 +223,10 @@ function PlotDetailModal({ plot, onClose }: { plot: Plot | null; onClose: () => 
         >
           <div className="bg-white text-black p-8 border-b border-black/10">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-3xl font-bold uppercase tracking-tighter">
+              <h3 className="text-3xl font-bold uppercase tracking-tighter text-foreground">
                 Plot {plot.id}
               </h3>
-              <Badge variant="outline" className="border-black text-black uppercase tracking-widest rounded-none">
+              <Badge variant="outline" className="border-primary text-primary uppercase tracking-widest rounded-none">
                 {plot.status}
               </Badge>
             </div>
@@ -254,7 +254,7 @@ function PlotDetailModal({ plot, onClose }: { plot: Plot | null; onClose: () => 
             </div>
 
             <Button
-              className="w-full bg-black text-white hover:bg-black/90 uppercase tracking-widest py-6 text-xs font-bold rounded-none"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase tracking-widest py-6 text-xs font-bold rounded-none"
               disabled={plot.status !== 'available'}
             >
               {plot.status === 'available' ? 'Book Now' : 'Unavailable'}
@@ -269,14 +269,14 @@ function PlotDetailModal({ plot, onClose }: { plot: Plot | null; onClose: () => 
 function ProjectCard({ project }: { project: any }) {
   return (
     <div className="mb-16">
-      <div className="h-[50vh] relative grayscale">
-        <img src={project.image} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-white/30 flex items-center justify-center">
-          <h2 className="text-5xl md:text-7xl font-bold text-black uppercase tracking-tighter">{project.name}</h2>
+      <div className="h-[60vh] relative overflow-hidden">
+        <img src={project.image} className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105" />
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter drop-shadow-xl">{project.name}</h2>
         </div>
       </div>
       <div className="max-w-3xl mx-auto py-12 text-center">
-        <p className="text-xl text-black/60 font-light leading-relaxed">{project.description}</p>
+        <p className="text-xl text-muted-foreground font-light leading-relaxed">{project.description}</p>
       </div>
     </div>
   )
