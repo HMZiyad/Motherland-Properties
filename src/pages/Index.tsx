@@ -54,7 +54,7 @@ function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background text-white">
+    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-background text-white pt-32 pb-20">
       {/* Background Slideshow */}
       <HeroSlideshow currentIndex={currentIndex} />
 
@@ -74,16 +74,16 @@ function HeroSection() {
           <motion.div
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center mb-8 relative"
+            className="flex flex-col items-center mb-12 relative"
           >
             {/* Falling Logo */}
-            <motion.div variants={logoVariants} className="mb-8 relative z-20">
-              <img src="/mlp2.png" alt="Company Logo" className="h-24 w-auto brightness-0 invert drop-shadow-xl" />
+            <motion.div variants={logoVariants} className="mb-4 sm:mb-8 relative z-20">
+              <img src="/mlp2.png" alt="Company Logo" className="h-16 sm:h-20 md:h-24 w-auto brightness-0 invert drop-shadow-xl" />
             </motion.div>
 
             {/* Squashing Text */}
             <motion.div variants={textContainerVariants} className="origin-bottom">
-              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white leading-tight uppercase tracking-tighter drop-shadow-lg">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight uppercase tracking-tighter drop-shadow-lg">
                 {language === 'bn' ? (
                   <>মাদারল্যান্ড গ্রিন<br />প্রপার্টিজ লিঃ</>
                 ) : (
